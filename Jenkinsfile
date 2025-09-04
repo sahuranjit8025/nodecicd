@@ -4,7 +4,6 @@ pipeline {
     agent any
 
     environment {
-        // You can define environment variables here if needed
         NODE_ENV = 'development'
     }
 
@@ -19,30 +18,23 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                bat 'npm install'
             }
         }
 
         stage('Build/Test') {
             steps {
-                sh 'npm test' // Replace with 'npm run build' if you have a build script
+                bat 'npm test' // Or 'npm run build' if you have a build step
             }
         }
-
-        // Optional: Add a deployment stage if needed
-        // stage('Deploy') {
-        //     steps {
-        //         sh './deploy.sh' // Or any deployment command/script
-        //     }
-        // }
     }
 
     post {
         success {
-            echo 'Build completed successfully!'
+            echo '✅ Build completed successfully!'
         }
         failure {
-            echo 'Build failed. Please check the logs.'
+            echo '❌ Build failed. Please check the logs.'
         }
     }
 }
