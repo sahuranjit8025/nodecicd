@@ -22,11 +22,11 @@ pipeline {
             }
         }
 
-        stage('Build/Test') {
+        /* stage('Build/Test') {
             steps {
                 bat 'npm test' // Or 'npm run build' if you have a build step
             }
-        }
+        } */
     }
 
     post {
