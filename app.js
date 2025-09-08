@@ -7,7 +7,7 @@
     const server = http.createServer((req, res) => {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'text/plain');
-      res.end('Hi from Ranjit Node.js CI/CD!');
+      res.end('Hi from Ranjit Node.js CI/CD! in jenkins');
     });
 
     server.listen(port, hostname, () => {
