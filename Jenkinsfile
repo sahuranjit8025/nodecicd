@@ -1,5 +1,3 @@
-
-// Jenkinsfile
 pipeline {
     agent any
 
@@ -8,9 +6,6 @@ pipeline {
         AWS_REGION = 'ap-south-1'
         ECR_REPO = 'sample-node-app'
         IMAGE_TAG = 'latest'
-        ACCOUNT_ID = credentials('aws-account-id') // Jenkins credential
-        ECR_URL = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
-
     }
 
     stages {
@@ -27,41 +22,39 @@ pipeline {
                 sh 'npm install'
             }
         }
-        
-        stage('Build Docker Image') {
-                    steps {
-                        script {
-                            docker.build("${ECR_REPO}:${IMAGE_TAG}")
-                        }
-                    }
-                }
-        
-        stage('Login to ECR') {
-                    steps {
-                        sh """
-                        aws ecr get-login-password --region $AWS_REGION | \
-                        docker login --username AWS --password-stdin $ECR_URL
-                        """
-                    }
-                }
-        
-        stage('Tag & Push Image') {
-                    steps {
-                        sh """
-                        docker tag ${ECR_REPO}:${IMAGE_TAG} ${ECR_URL}:${IMAGE_TAG}
-                        docker push ${ECR_URL}:${IMAGE_TAG}
-                        """
-                    }
-                }
-        
-        
 
-
-        /* stage('Build/Test') {
+        stage('Get AWS Account ID') {
             steps {
-                bat 'npm test' // Or 'npm run build' if you have a build step
+                script {
+                    env.ACCOUNT_ID = sh(script: "aws sts get-caller-identity --query Account --output text", returnStdout: true).trim()
+                    env.ECR_URL = "${env.ACCOUNT_ID}.dkr.ecr.${env.AWS_REGION}.amazonaws.com/${env.ECR_REPO}"
+                }
             }
-        } */
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${ECR_REPO}:${IMAGE_TAG} ."
+            }
+        }
+
+        stage('Login to ECR') {
+            steps {
+                sh """
+                aws ecr get-login-password --region $AWS_REGION | \
+                docker login --username AWS --password-stdin $ECR_URL
+                """
+            }
+        }
+
+        stage('Tag & Push Image') {
+            steps {
+                sh """
+                docker tag ${ECR_REPO}:${IMAGE_TAG} ${ECR_URL}:${IMAGE_TAG}
+                docker push ${ECR_URL}:${IMAGE_TAG}
+                """
+            }
+        }
     }
 
     post {
