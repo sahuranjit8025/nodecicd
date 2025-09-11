@@ -5,6 +5,12 @@ pipeline {
 
     environment {
         NODE_ENV = 'development'
+        AWS_REGION = 'ap-south-1'
+        ECR_REPO = 'sample-node-app'
+        IMAGE_TAG = 'latest'
+        ACCOUNT_ID = credentials('aws-account-id') // Jenkins credential
+        ECR_URL = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
+
     }
 
     stages {
@@ -21,6 +27,35 @@ pipeline {
                 sh 'npm install'
             }
         }
+        
+        stage('Build Docker Image') {
+                    steps {
+                        script {
+                            docker.build("${ECR_REPO}:${IMAGE_TAG}")
+                        }
+                    }
+                }
+        
+        stage('Login to ECR') {
+                    steps {
+                        sh """
+                        aws ecr get-login-password --region $AWS_REGION | \
+                        docker login --username AWS --password-stdin $ECR_URL
+                        """
+                    }
+                }
+        
+        stage('Tag & Push Image') {
+                    steps {
+                        sh """
+                        docker tag ${ECR_REPO}:${IMAGE_TAG} ${ECR_URL}:${IMAGE_TAG}
+                        docker push ${ECR_URL}:${IMAGE_TAG}
+                        """
+                    }
+                }
+        
+        
+
 
         /* stage('Build/Test') {
             steps {
