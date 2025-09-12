@@ -6,6 +6,10 @@ pipeline {
         AWS_REGION = 'ap-south-1'
         ECR_REPO = 'sample-node-app'
         IMAGE_TAG = 'latest'
+        ECS_CLUSTER = 'my-ecs-cluster'
+        ECS_SERVICE = 'my-ecs-service'
+        TASK_DEFINITION_FAMILY = 'my-ecs-task'
+
     }
 
     stages {
@@ -55,7 +59,19 @@ pipeline {
                 """
             }
         }
+        stage('Update ECS Service') {
+        steps {
+        sh '''
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --force-new-deployment
+        '''
+      }
     }
+    }
+    
+
 
     post {
         success {
