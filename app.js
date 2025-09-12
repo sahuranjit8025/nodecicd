@@ -1,15 +1,14 @@
-    // app.js
-    const http = require('http');
+const http = require('http');
 
-    const hostname = '127.0.0.1';
-    const port = 3000;
+const hostname = '0.0.0.0'; // Accept connections from anywhere
+const port = 3000;
 
-    const server = http.createServer((req, res) => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('welcome to Node.js CI/CD! in jenkins from Ranjit');
-    });
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('welcome to Node.js CI/CD! in jenkins from Ranjit');
+});
 
-    server.listen(port, hostname, () => {
-      console.log(`Server running at http://${hostname}:${port}/`);
-    });
+server.listen(port, hostname, () => {
+  console.log(`Server running at http://${hostname}:${port}/`);
+});
